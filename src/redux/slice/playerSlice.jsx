@@ -11,7 +11,7 @@ const initialState = {
     volume: 0.5
   }
 
-export const backendUrl = "http://player.node.ed.asmer.org.ua/";
+export const backendUrl = process.env.REACT_APP_API_URL || "";
 export const audio = new Audio();
 audio.crossOrigin = "anonymous";
 

@@ -6,31 +6,26 @@ import reportWebVitals from './reportWebVitals';
 import store from './redux/store';
 import { Provider } from 'react-redux';
 
-// if (process.env.NODE_ENV === 'development') {
-//     const { worker } = require('./mocks/browser');
-//     worker.start();
-// }
-
-
-// if (!process.env.REACT_APP_API_URL) {  // нет бэкенда → включаем MSW
-//   const { worker } = require('./mocks/browser');
-//   worker.start();
-// }
-
-// MSW start (works on Vercel too if no real backend)
-if (!process.env.REACT_APP_API_URL) {
-  const { worker } = require('./mocks/browser');
-  worker.start({
-    onUnhandledRequest: 'bypass',
-  });
+// MSW initialization для работы без бэкенда (development и production на Vercel)
+async function enableMocking() {
+  if (process.env.NODE_ENV === 'development' || !process.env.REACT_APP_API_URL) {
+    const { worker } = await import('./mocks/browser');
+    return worker.start({
+      onUnhandledRequest: 'bypass',
+      serviceWorker: {
+        url: '/mockServiceWorker.js',
+      },
+    });
+  }
 }
 
-
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
+enableMocking().then(() => {
+  const root = ReactDOM.createRoot(document.getElementById('root'));
+  root.render(
     <Provider store={store}>
-        <App />
+      <App />
     </Provider>
-);
-
-reportWebVitals();
+  );
+  
+  reportWebVitals();
+});

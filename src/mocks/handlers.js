@@ -1,10 +1,12 @@
-import { graphql } from 'msw';
+import { graphql, http, HttpResponse } from 'msw';
 
 export const handlers = [
-  // login
-  graphql.mutation('login', (req, res, ctx) => {
-    const { login } = req.variables;
-    return res(ctx.data({ login: `token-for-${login}` }));
+  // login - это query, не mutation!
+  graphql.query('login', (req, res, ctx) => {
+    const { login, password } = req.variables;
+    // Генерируем токен на основе логина
+    const token = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOnsiaWQiOiIxIiwibG9naW4iOiI${login}`;
+    return res(ctx.data({ login: token }));
   }),
 
   // registration
@@ -141,13 +143,24 @@ export const handlers = [
   // upsertPlaylist
   graphql.mutation('UpsertPlaylist', (req, res, ctx) => {
     const { playlistId, namePls, descriptionPls, tracksId } = req.variables;
+    // Преобразуем tracksId в формат треков с полной информацией
+    const tracks = (tracksId || []).map((track, index) => ({
+      _id: track._id || `track_${index}`,
+      url: `/audio/mock-track-${track._id || index}.mp3`,
+      id3: {
+        title: `Track ${track._id || index}`,
+        artist: 'Mock Artist',
+        album: 'Mock Album',
+      },
+    }));
+    
     return res(
       ctx.data({
         PlaylistUpsert: {
-          _id: playlistId || '1',
+          _id: playlistId || `playlist_${Date.now()}`,
           name: namePls,
           description: descriptionPls,
-          tracks: tracksId || [],
+          tracks: tracks,
         },
       })
     );
@@ -163,5 +176,35 @@ export const handlers = [
         ],
       })
     );
+  }),
+
+  // REST handlers для загрузки файлов
+  http.post('/upload', async ({ request }) => {
+    // Мокируем загрузку изображения
+    const formData = await request.formData();
+    const file = formData.get('photo');
+    
+    // Генерируем ID для изображения
+    const imageId = `img_${Date.now()}`;
+    
+    return HttpResponse.json({
+      _id: imageId,
+      url: '/avatars/default.png',
+    });
+  }),
+
+  http.post('/track', async ({ request }) => {
+    // Мокируем загрузку аудио трека
+    const formData = await request.formData();
+    const file = formData.get('track');
+    
+    // Генерируем ID и URL для трека
+    const trackId = `track_${Date.now()}`;
+    const trackUrl = `/audio/mock-track-${trackId}.mp3`;
+    
+    return HttpResponse.json({
+      _id: trackId,
+      url: trackUrl,
+    });
   }),
 ];
