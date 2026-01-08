@@ -1,82 +1,118 @@
 import { graphql, http, HttpResponse } from 'msw';
 
+
 export const handlers = [
-  // login - это query, не mutation!
-  graphql.query('login', (req, res, ctx) => {
-    const { login, password } = req.variables;
-    // Генерируем токен на основе логина
-    const token = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOnsiaWQiOiIxIiwibG9naW4iOiI${login}`;
-    return res(ctx.data({ login: token }));
+  // ===== AUTH =====
+
+  graphql.query('login', ({ variables }) => {
+    const { login } = variables || {};
+    const token = `mock-token-for-${login || 'user'}`;
+
+    return HttpResponse.json({
+      data: { login: token },
+    });
   }),
 
-  // registration
-  graphql.mutation('reg', (req, res, ctx) => {
-    const { login } = req.variables;
-    return res(ctx.data({ createUser: { _id: '1', login } }));
+  graphql.mutation('reg', ({ variables }) => {
+    const { login } = variables || {};
+
+    return HttpResponse.json({
+      data: { createUser: { _id: '1', login } },
+    });
   }),
 
-  // getUserById
-  graphql.query('oneUser', (req, res, ctx) => {
-    return res(
-      ctx.data({
+  graphql.query('oneUser', () => {
+    return HttpResponse.json({
+      data: {
         UserFindOne: {
           _id: '1',
           login: 'katya',
           nick: 'Katya',
           avatar: { url: '/avatars/default.png' },
         },
-      })
-    );
+      },
+    });
   }),
 
-  // passwordChange
-  graphql.mutation('passwordChange', (req, res, ctx) => {
-    const { login } = req.variables;
-    return res(ctx.data({ changePassword: { _id: '1', login } }));
+  graphql.mutation('passwordChange', () => {
+    return HttpResponse.json({
+      data: { changePassword: true },
+    });
   }),
 
-  // setUserNick
-  graphql.mutation('setNick', (req, res, ctx) => {
-    const { _id, nick } = req.variables;
-    return res(ctx.data({ UserUpsert: { _id, nick } }));
+  graphql.mutation('setNick', ({ variables }) => {
+    const { _id, nick } = variables || {};
+
+    return HttpResponse.json({
+      data: { UserUpsert: { _id: _id || '1', nick } },
+    });
   }),
 
-  // setAvatar
-  graphql.mutation('setAvatar', (req, res, ctx) => {
-    const { idUser, idImg } = req.variables;
-    return res(
-      ctx.data({
-        UserUpsert: { _id: idUser, avatar: { _id: idImg, url: '/avatars/default.png' } },
-      })
-    );
+  graphql.mutation('setAvatar', ({ variables }) => {
+    const { idUser, idImg } = variables || {};
+
+    return HttpResponse.json({
+      data: {
+        UserUpsert: {
+          _id: idUser || '1',
+          avatar: { _id: idImg || 'img1', url: '/avatars/default.png' },
+        },
+      },
+    });
   }),
 
-  // getTracks
-  graphql.query('trackFull', (req, res, ctx) => {
-    return res(
-      ctx.data({
+  // ===== TRACKS =====
+
+  graphql.query('trackFull', () => {
+    return HttpResponse.json({
+      data: {
         TrackFind: [
-          { _id: '1', url: '/audio/song1.mp3', id3: { title: 'Song 1', artist: 'Artist 1', album: 'Album 1' } },
-          { _id: '2', url: '/audio/song2.mp3', id3: { title: 'Song 2', artist: 'Artist 2', album: 'Album 2' } },
+          {
+            _id: '1',
+            url: '/audio/song1.mp3',
+            id3: { title: 'Song 1', artist: 'Artist 1', album: 'Album 1' },
+          },
+          {
+            _id: '2',
+            url: '/audio/song2.mp3',
+            id3: { title: 'Song 2', artist: 'Artist 2', album: 'Album 2' },
+          },
         ],
-      })
-    );
+      },
+    });
   }),
 
-  // getTrackId
-  graphql.query('trackOneId', (req, res, ctx) => {
-    const { _id } = req.variables.idTrack ? JSON.parse(req.variables.idTrack)[0] : { _id: '1' };
-    return res(
-      ctx.data({
-        TrackFindOne: { _id, url: '/audio/song1.mp3', id3: { title: 'Song 1', artist: 'Artist 1', album: 'Album 1' } },
-      })
-    );
+  graphql.query('trackOneId', () => {
+    return HttpResponse.json({
+      data: {
+        TrackFindOne: {
+          _id: '1',
+          url: '/audio/song1.mp3',
+          id3: { title: 'Song 1', artist: 'Artist 1', album: 'Album 1' },
+        },
+      },
+    });
   }),
 
-  // getPlaylistsMy
-  graphql.query('MyPlaylists', (req, res, ctx) => {
-    return res(
-      ctx.data({
+  graphql.query('trackFind', () => {
+    return HttpResponse.json({
+      data: {
+        TrackFind: [
+          {
+            _id: '1',
+            url: '/audio/song1.mp3',
+            id3: { title: 'Song 1', artist: 'Artist 1', album: 'Album 1' },
+          },
+        ],
+      },
+    });
+  }),
+
+  // ===== PLAYLISTS =====
+
+  graphql.query('MyPlaylists', () => {
+    return HttpResponse.json({
+      data: {
         PlaylistFind: [
           {
             _id: '1',
@@ -85,126 +121,108 @@ export const handlers = [
             tracks: [],
           },
         ],
-      })
-    );
+      },
+    });
   }),
 
-  // getTracksMy
-  graphql.query('trackFind', (req, res, ctx) => {
-    return res(
-      ctx.data({
-        TrackFind: [
-          { _id: '1', url: '/audio/song1.mp3', id3: { title: 'Song 1', artist: 'Artist 1', album: 'Album 1' } },
-        ],
-      })
-    );
-  }),
-
-  // getPlaylist
-  graphql.query('plsFull', (req, res, ctx) => {
-    return res(
-      ctx.data({
+  graphql.query('plsFull', () => {
+    return HttpResponse.json({
+      data: {
         PlaylistFind: [
           {
             _id: '1',
             name: 'My Playlist',
             description: 'Cool songs',
             tracks: [
-              { _id: '1', url: '/audio/song1.mp3', id3: { title: 'Song 1', artist: 'Artist 1', album: 'Album 1' } },
+              {
+                _id: '1',
+                url: '/audio/song1.mp3',
+                id3: { title: 'Song 1', artist: 'Artist 1', album: 'Album 1' },
+              },
             ],
           },
         ],
-      })
-    );
+      },
+    });
   }),
 
-  // getPlaylistId
-  graphql.query('plsOne', (req, res, ctx) => {
-    const _id = req.variables._id ? JSON.parse(req.variables._id)[0]._id : '1';
-    return res(
-      ctx.data({
+  graphql.query('plsOne', () => {
+    return HttpResponse.json({
+      data: {
         PlaylistFindOne: {
-          _id,
+          _id: '1',
           name: 'My Playlist',
           description: 'Cool songs',
           tracks: [
-            { _id: '1', url: '/audio/song1.mp3', id3: { title: 'Song 1', artist: 'Artist 1', album: 'Album 1' } },
+            {
+              _id: '1',
+              url: '/audio/song1.mp3',
+              id3: { title: 'Song 1', artist: 'Artist 1', album: 'Album 1' },
+            },
           ],
         },
-      })
-    );
-  }),
-
-  // deletePlaylist
-  graphql.mutation('DeletePlaylist', (req, res, ctx) => {
-    return res(ctx.data({ PlaylistDelete: { _id: req.variables.playlistId } }));
-  }),
-
-  // upsertPlaylist
-  graphql.mutation('UpsertPlaylist', (req, res, ctx) => {
-    const { playlistId, namePls, descriptionPls, tracksId } = req.variables;
-    // Преобразуем tracksId в формат треков с полной информацией
-    const tracks = (tracksId || []).map((track, index) => ({
-      _id: track._id || `track_${index}`,
-      url: `/audio/mock-track-${track._id || index}.mp3`,
-      id3: {
-        title: `Track ${track._id || index}`,
-        artist: 'Mock Artist',
-        album: 'Mock Album',
       },
-    }));
-    
-    return res(
-      ctx.data({
-        PlaylistUpsert: {
-          _id: playlistId || `playlist_${Date.now()}`,
-          name: namePls,
-          description: descriptionPls,
-          tracks: tracks,
-        },
-      })
-    );
+    });
   }),
 
-  // searchTrack
-  graphql.query('trackSearch', (req, res, ctx) => {
-    const title = req.variables.title ? JSON.parse(req.variables.title)[0]['id3.title'] : 'Song 1';
-    return res(
-      ctx.data({
-        TrackFind: [
-          { _id: '1', url: '/audio/song1.mp3', id3: { title, artist: 'Artist 1', album: 'Album 1' } },
-        ],
-      })
-    );
-  }),
-
-  // REST handlers для загрузки файлов
-  http.post('/upload', async ({ request }) => {
-    // Мокируем загрузку изображения
-    const formData = await request.formData();
-    const file = formData.get('photo');
-    
-    // Генерируем ID для изображения
-    const imageId = `img_${Date.now()}`;
-    
+  graphql.mutation('DeletePlaylist', ({ variables }) => {
     return HttpResponse.json({
-      _id: imageId,
+      data: { PlaylistDelete: { _id: variables?.playlistId || '1' } },
+    });
+  }),
+
+  graphql.mutation('UpsertPlaylist', ({ variables }) => {
+    const { playlistId, namePls, descriptionPls, tracksId } = variables || {};
+
+    const tracks =
+      tracksId?.map((t, i) => ({
+        _id: t?._id || `track_${i}`,
+        url: `/audio/mock-${i}.mp3`,
+        id3: { title: `Track ${i}`, artist: 'Mock Artist', album: 'Mock Album' },
+      })) || [];
+
+    return HttpResponse.json({
+      data: {
+        PlaylistUpsert: {
+          _id: playlistId || '1',
+          name: namePls || 'My Playlist',
+          description: descriptionPls || 'Cool songs',
+          tracks,
+        },
+      },
+    });
+  }),
+
+  graphql.query('trackSearch', ({ variables }) => {
+    const title = variables?.title || 'Song';
+
+    return HttpResponse.json({
+      data: {
+        TrackFind: [
+          {
+            _id: '1',
+            url: '/audio/song1.mp3',
+            id3: { title, artist: 'Artist 1', album: 'Album 1' },
+          },
+        ],
+      },
+    });
+  }),
+
+  // ===== REST UPLOAD MOCKS =====
+
+  http.post('/upload', async () => {
+    return HttpResponse.json({
+      _id: `img_${Date.now()}`,
       url: '/avatars/default.png',
     });
   }),
 
-  http.post('/track', async ({ request }) => {
-    // Мокируем загрузку аудио трека
-    const formData = await request.formData();
-    const file = formData.get('track');
-    
-    // Генерируем ID и URL для трека
-    const trackId = `track_${Date.now()}`;
-    const trackUrl = `/audio/mock-track-${trackId}.mp3`;
-    
+  http.post('/track', async () => {
     return HttpResponse.json({
-      _id: trackId,
-      url: trackUrl,
+      _id: `track_${Date.now()}`,
+      url: '/audio/mock-track.mp3',
     });
   }),
 ];
+

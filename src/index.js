@@ -7,14 +7,22 @@ import store from './redux/store';
 import { Provider } from 'react-redux';
 
 // MSW initialization для работы без бэкенда (development и production на Vercel)
+// async function enableMocking() {
+//   if (process.env.NODE_ENV === 'development' || !process.env.REACT_APP_API_URL) {
+//     const { worker } = await import('./mocks/browser');
+//     return worker.start({
+//       onUnhandledRequest: 'bypass',
+//       serviceWorker: {
+//         url: '/mockServiceWorker.js',
+//       },
+//     });
+//   }
+// }
 async function enableMocking() {
-  if (process.env.NODE_ENV === 'development' || !process.env.REACT_APP_API_URL) {
+  if (process.env.NODE_ENV === 'development') {
     const { worker } = await import('./mocks/browser');
-    return worker.start({
+    await worker.start({
       onUnhandledRequest: 'bypass',
-      serviceWorker: {
-        url: '/mockServiceWorker.js',
-      },
     });
   }
 }
