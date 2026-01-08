@@ -1,14 +1,14 @@
 export function jwtDecode(token) {
     if (!token) {
-        return undefined; // Перевіряємо, чи передано токен
+        return undefined; 
     }
-    let parts = token.split("."); // Розбиваємо токен на три частини (заголовок, дані про ідентифікацію, підпис)
-    if (parts.length !== 3) { // Перевіряємо, що є три частини
+    let parts = token.split("."); 
+    if (parts.length !== 3) {
         return undefined;
     }
-    const [, identifyingInformation,] = parts; // Дістаємо дані про ідентифікацію (друга частина токена)
+    const [, identifyingInformation,] = parts;
     try {
-        return JSON.parse(atob(identifyingInformation)); // Декодуємо дані про ідентифікацію з Base64 та парсим JSON
+        return JSON.parse(atob(identifyingInformation)); 
     } catch (error) {
         return undefined;
     }
