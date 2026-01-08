@@ -5,9 +5,7 @@ import { graphqlRequestBaseQuery } from '@rtk-query/graphql-request-base-query'
 export const api = createApi({
   reducerPath: 'api',
   baseQuery: graphqlRequestBaseQuery({
-    // url: 'http://player.node.ed.asmer.org.ua/graphql',
-    url: process.env.REACT_APP_API_URL || '/graphql'
-
+   url: process.env.REACT_APP_API_URL || '/graphql',
     prepareHeaders: (headers, { getState }) => {
       const authState = getState().persistedReducer.auth;
       if (authState && authState.token) {
