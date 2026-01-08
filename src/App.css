@@ -1,0 +1,33 @@
+.icon{
+    display: flex;
+    align-items: center;
+}
+.MuiSvgIcon-root{
+    margin: 10px;
+}
+.link{
+    text-decoration: none;
+    color: rgb(0, 0, 9);
+    font-size: 18px;
+}
+.link:hover{
+    color: rgb(4, 4, 245);
+}
+.MuiSvgIcon-root{
+    color: rgba(46, 82, 246, 0.981);
+}
+.css-1i2ptwo{
+background-color: white;
+}
+.css-yz9k0d-MuiInputBase-input{
+    background-color: black;
+}
+.css-lguxed-MuiAvatar-root{
+    background-color: #9c27b021 !important;
+}
+.css-cvk5vv-MuiGrid-root{
+    margin: 0!important;
+}
+
+
+
