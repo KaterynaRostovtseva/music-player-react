@@ -234,7 +234,7 @@ export const api = createApi({
     searchTrack: builder.query({
       query: ({ title }) => ({
         document: `
-                    query trackFind ($title: String) {
+                    query trackSearch ($title: String) {
                         TrackFind (query: $title){
                         _id url 
                         id3{

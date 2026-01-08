@@ -2,7 +2,7 @@ import { graphql } from 'msw';
 
 export const handlers = [
   // login
-  graphql.query('login', (req, res, ctx) => {
+  graphql.mutation('login', (req, res, ctx) => {
     const { login } = req.variables;
     return res(ctx.data({ login: `token-for-${login}` }));
   }),
@@ -154,7 +154,7 @@ export const handlers = [
   }),
 
   // searchTrack
-  graphql.query('trackFind', (req, res, ctx) => {
+  graphql.query('trackSearch', (req, res, ctx) => {
     const title = req.variables.title ? JSON.parse(req.variables.title)[0]['id3.title'] : 'Song 1';
     return res(
       ctx.data({
