@@ -7,7 +7,9 @@ export const uploadFile = async (fileName, file, fetchUrl, authToken) => {
     const headers = authToken ? { Authorization: 'Bearer ' + authToken } : {};
 
     try {
-        const response = await fetch(`${backendUrl}${fetchUrl}`, {
+        // Ensure fetchUrl is absolute path when backendUrl is empty
+        const normalizedFetchUrl = fetchUrl.startsWith('/') ? fetchUrl : `/${fetchUrl}`;
+        const response = await fetch(`${backendUrl}${normalizedFetchUrl}`, {
             method: "POST",
             headers: headers,
             body: formData

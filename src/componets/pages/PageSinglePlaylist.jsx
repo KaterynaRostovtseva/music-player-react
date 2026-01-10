@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useGetPlaylistIdQuery } from '../../redux/api';
-import { CircularProgress, Grid, Box, Typography, CardContent, TableBody, TableRow, TableCell, Table, TableHead, TableContainer, Paper } from "@mui/material";
+import { CircularProgress, Grid, Box, Typography, CardContent, TableBody, TableRow, TableCell, Table, TableHead, TableContainer, Paper, useMediaQuery, useTheme } from "@mui/material";
 import { useParams } from "react-router-dom";
 import { IconButton } from "@mui/material";
 import { PlayArrow } from "@mui/icons-material";
@@ -11,6 +11,8 @@ import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
 
 const PageSinglePlaylist = () => {
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const { id } = useParams();
     const { data, isLoading } = useGetPlaylistIdQuery({ _id: id });
     const playerState = useSelector(state => state.persistedReducer.player);
@@ -54,26 +56,26 @@ const PageSinglePlaylist = () => {
         </Box>
     ) : (
         <>
-            <Box sx={{ mx: 1 }}>
-                <Box sx={{ mx: 5,my:3, display: 'flex', flexDirection: 'column' }}>
-                    <Typography gutterBottom variant="h4" component="div">
+            <Box sx={{ mx: { xs: 1, md: 1 } }}>
+                <Box sx={{ mx: { xs: 2, md: 5 }, my: { xs: 2, md: 3 }, display: 'flex', flexDirection: 'column' }}>
+                    <Typography gutterBottom variant="h4" component="div" sx={{ fontSize: { xs: '1.5rem', md: '2.125rem' } }}>
                         {playlist?.PlaylistFindOne.name || 'Немає назви'}
                     </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                        {data.PlaylistFindOne.description || 'Немає опису'}
+                    <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.875rem', md: '0.875rem' } }}>
+                        {data?.PlaylistFindOne?.description || 'Немає опису'}
                     </Typography>
                 </Box>
-                <Box sx={{ mx: 1 }}>
-                    <Typography gutterBottom variant="h6" component="div" sx={{ mx: 5, my: 1 }}>Треки</Typography>
+                <Box sx={{ mx: { xs: 1, md: 1 } }}>
+                    <Typography gutterBottom variant="h6" component="div" sx={{ mx: { xs: 2, md: 5 }, my: 1, fontSize: { xs: '1.1rem', md: '1.25rem' } }}>Треки</Typography>
                     <DragDropContext onDragEnd={handleDragEnd}>
-                        <TableContainer component={Paper} sx={{ mx: 5, my: 2, width:'90%'}}>
-                            <Table aria-label="simple table">
+                        <TableContainer component={Paper} sx={{ mx: { xs: 1, sm: 3, md: 5 }, my: 2, width: { xs: '95%', sm: '90%' }, overflowX: 'auto' }}>
+                            <Table aria-label="simple table" size={isMobile ? 'small' : 'medium'}>
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell><IconButton /></TableCell>
-                                        <TableCell>Назва</TableCell>
-                                        <TableCell>Альбом</TableCell>
-                                        <TableCell>Виконавець</TableCell>
+                                        <TableCell sx={{ padding: { xs: '8px', md: '16px' } }}><IconButton size={isMobile ? 'small' : 'medium'} /></TableCell>
+                                        <TableCell sx={{ padding: { xs: '8px', md: '16px' }, fontSize: { xs: '0.875rem', md: '1rem' } }}>Назва</TableCell>
+                                        {!isMobile && <TableCell sx={{ padding: { xs: '8px', md: '16px' } }}>Альбом</TableCell>}
+                                        <TableCell sx={{ padding: { xs: '8px', md: '16px' }, fontSize: { xs: '0.875rem', md: '1rem' } }}>Виконавець</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <Droppable droppableId="droppable">
@@ -91,24 +93,26 @@ const PageSinglePlaylist = () => {
                                                                 backgroundColor: snapshot.isDragging ? 'lightgrey' : 'inherit',
                                                             }}
                                                         >
-                                                            <TableCell>
+                                                            <TableCell sx={{ padding: { xs: '8px', md: '16px' } }}>
                                                                 {playerState.track?._id === item._id && playerState.isPlaying === true ?
-                                                                    <IconButton onClick={() => { handleStop() }}>
+                                                                    <IconButton onClick={() => { handleStop() }} size={isMobile ? 'small' : 'medium'}>
                                                                         <PauseRounded />
                                                                     </IconButton>
                                                                     :
-                                                                    <IconButton onClick={() => { handlePlay(item) }}>
+                                                                    <IconButton onClick={() => { handlePlay(item) }} size={isMobile ? 'small' : 'medium'}>
                                                                         <PlayArrow />
                                                                     </IconButton>
                                                                 }
                                                             </TableCell>
-                                                            <TableCell>
+                                                            <TableCell sx={{ padding: { xs: '8px', md: '16px' }, fontSize: { xs: '0.875rem', md: '1rem' } }}>
                                                                 {item.id3 === null ? 'Без назви' : item.id3.title !== null ? item.id3.title : 'Без назви'}
                                                             </TableCell>
-                                                            <TableCell>
-                                                                {item.id3 === null ? 'Без назви' : item.id3.album !== null ? item.id3.album : 'Без назви'}
-                                                            </TableCell>
-                                                            <TableCell>
+                                                            {!isMobile && (
+                                                                <TableCell sx={{ padding: { xs: '8px', md: '16px' } }}>
+                                                                    {item.id3 === null ? 'Без назви' : item.id3.album !== null ? item.id3.album : 'Без назви'}
+                                                                </TableCell>
+                                                            )}
+                                                            <TableCell sx={{ padding: { xs: '8px', md: '16px' }, fontSize: { xs: '0.875rem', md: '1rem' } }}>
                                                                 {item.id3 === null ? 'Без назви' : item.id3.artist !== null ? item.id3.artist : 'Без назви'}
                                                             </TableCell>
                                                         </TableRow>
@@ -124,7 +128,7 @@ const PageSinglePlaylist = () => {
                     </DragDropContext>
                 </Box>
             </Box>
-            <div style={{height: '210px', width: '100%'}}></div>
+            <Box sx={{ height: { xs: '150px', md: '210px' }, width: '100%' }}></Box>
         </>
     )
 };

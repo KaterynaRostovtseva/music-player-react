@@ -15,6 +15,8 @@ import IconButton from '@mui/material/IconButton';
 import Fade from '@mui/material/Fade';
 import CircularProgress from '@mui/material/CircularProgress';
 import Paper from '@mui/material/Paper';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { useTheme } from '@mui/material/styles';
 
 
 
@@ -31,6 +33,8 @@ function validateRepeatPassword(password, repeatPassword) {
 }
 
 export default function PageRegister(prop) {
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const [login, setLogin] = useState('');
     const [password, setPassword] = useState('');
     const [repeatPassword, setRepeatPassword] = useState('');
@@ -51,18 +55,21 @@ export default function PageRegister(prop) {
         setLoading(true);
         try {
             const response = await registrationMutation({ login, password });
-            if (response.data.createUser !== null) {
+            if (response.data?.createUser !== null && response.data?.createUser !== undefined) {
                 const res = await loginQuery({ login, password });
                 setLoading(false);
-                if (res.data) {
+                if (res.data?.login) {
                     dispatch(logIn(res.data.login));
                     setLogin('');
                     setPassword('');
                     navigate("/");
                 }
+            } else {
+                setLoading(false);
+                console.error('Помилка реєстрації', response.error);
             }
         } catch (error) {
-            console.error('Помилка авторизації', error);
+            console.error('Помилка реєстрації', error);
             setLoading(false);
         }
     };
@@ -72,11 +79,19 @@ export default function PageRegister(prop) {
         try {
             const response = await loginQuery({ login, password });
             setLoading(false);
-            if (response.data) {
+            console.log('Login response:', response);
+            if (response.data?.login) {
+                console.log('Token received:', response.data.login);
                 dispatch(logIn(response.data.login));
+                console.log('Dispatched logIn action');
                 setLogin('');
                 setPassword('');
+                console.log('Navigating to home...');
                 navigate("/");
+            } else if (response.error) {
+                console.error('Помилка авторизації:', response.error);
+            } else {
+                console.log('No data or error in response');
             }
         } catch (error) {
             console.error('Помилка авторизації', error);
@@ -86,7 +101,6 @@ export default function PageRegister(prop) {
 
     const handleSubmit = (event) => {
         event.preventDefault();
-        // Перевірка валідації перед відправленням даних
         if (selectLog) {
             if (validateLogin(login) && validatePassword(password)) {
                 onLogin(login, password);
@@ -131,21 +145,15 @@ export default function PageRegister(prop) {
     };
 
     return (
-        <Grid item md={4} component={Paper} elevation={6} square>
+        <Grid item xs={12} sm={10} md={6} lg={4} component={Paper} elevation={6} square sx={{ mx: { xs: 1, md: 0 },  my: { xs: 4, md: 4 } }}>
             <Box sx={{ height: 40 }}>
-                <Fade
-                    in={loading}
-                    style={{
-                        transitionDelay: loading ? '800ms' : '0ms',
-                    }}
-                    unmountOnExit
-                >
+                <Fade in={loading} style={{ transitionDelay: loading ? '800ms' : '0ms',}} unmountOnExit >
                     <CircularProgress />
                 </Fade>
             </Box>
-            <Box sx={{ my: 8, mx: 4, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <LockOutlinedIcon />
-                <Typography component="h1" variant="h5">
+            <Box sx={{ my: { xs:2, md: 8 }, mx: { xs: 2, md: 4 }, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <LockOutlinedIcon sx={{ fontSize: { xs: '2rem', md: '2.5rem' } }} />
+                <Typography component="h1" variant="h5" sx={{ fontSize: { xs: '1.25rem', md: '1.5rem' } }}>
                     {selectLog ? 'Авторизація' : 'Реєстрація'}
                 </Typography>
                 <Box component="form" noValidate onSubmit={(e) => handleSubmit(e)}>
@@ -215,18 +223,17 @@ export default function PageRegister(prop) {
                             }
 
                         </Grid>
-                        <Button
-                            type="submit"
-                            fullWidth
-                            variant="contained"
-                            sx={{ mt: 3, ml: 2 }}
-                        >
+                        <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, ml: { xs: 0, md: 2 } }} size={isMobile ? 'small' : 'medium'}>
                             {selectLog ? 'Авторизуватися' : 'Зареєструватися'}
                         </Button>
-                        <Grid item>
-                            Вже є обліковий запис?
-                            {!selectLog ? <Button onClick={() => selectOnLog(true)} variant="body2" sx={{ ml: 2, color: '#304ffe' }}>Увійти</Button>
-                                : <Button onClick={() => selectOnLog(false)} variant="body2" sx={{ ml: 2, color: '#304ffe' }}> Зареструватися</Button>}
+                        <Grid item sx={{ mt: 2, textAlign: 'center', width: '100%' }}>
+                            <Typography component="span" sx={{ fontSize: { xs: '0.875rem', md: '1rem' } }}>
+                                Вже є обліковий запис?
+                            </Typography>
+                            {!selectLog ? 
+                                <Button onClick={() => selectOnLog(true)} variant="body2" sx={{ ml: 1, color: '#304ffe', fontSize: { xs: '0.875rem', md: '1rem' } }}>Увійти</Button>
+                                : <Button onClick={() => selectOnLog(false)} variant="body2" sx={{ ml: 1, color: '#304ffe', fontSize: { xs: '0.875rem', md: '1rem' } }}> Зареструватися</Button>
+                            }
                         </Grid>
                     </Grid>
                 </Box>

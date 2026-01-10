@@ -5,19 +5,37 @@ import {uploadFile} from "../uploadFile";
 import { useSelector, useDispatch } from "react-redux";
 import { useGetUserByIdQuery} from '../../redux/api';
 import { setAboutMe } from "../../redux/slice/authSlice";
+import store from '../../redux/store';
 
 const Basic = ({ uploadResult, prop }) => {
 
     const stateAuth = useSelector((state) => state.persistedReducer.auth);
-    const id = stateAuth.payload.sub.id;
+    const authPayload = stateAuth?.payload;
+    const id = authPayload?._id || authPayload?.sub?.id;
     const dispatch = useDispatch();
-    const { data, isLoading } = useGetUserByIdQuery({ _id: id });
+    const { data, isLoading } = useGetUserByIdQuery({ _id: id }, { skip: !id });
     const [files, setFiles] = useState([]);
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        if (!isLoading && data) {
-            dispatch(setAboutMe(data.UserFindOne));
+        if (!isLoading && data && data.UserFindOne) {
+            const currentState = store.getState();
+            const currentAboutMe = currentState.persistedReducer.auth.aboutMe;
+            const currentAvatar = currentAboutMe?.avatar?.url;
+            const newAvatar = data.UserFindOne?.avatar?.url;
+            const hasCurrentAvatar = currentAvatar && 
+                                    currentAvatar !== '/avatars/default.png' && 
+                                    currentAvatar.startsWith('data:');
+            
+            if (hasCurrentAvatar && (!newAvatar || newAvatar === '/avatars/default.png' || !data.UserFindOne.avatar)) {
+                const updatedUser = {
+                    ...data.UserFindOne,
+                    avatar: currentAboutMe.avatar
+                };
+                dispatch(setAboutMe(updatedUser));
+            } else {
+                dispatch(setAboutMe(data.UserFindOne));
+            }
         }
         if(prop) {
             setFiles([]);
@@ -30,21 +48,21 @@ const Basic = ({ uploadResult, prop }) => {
                 if (file.type.startsWith('image/')) {
                     const result = await uploadFile('photo', file, 'upload', stateAuth.token);
                     if (result) {
-                        uploadResult(result._id);
-                        setFiles([...files, file]);
+                        uploadResult(result._id, result.url);
+                        setFiles(prev => [...prev, { name: file.name, id: result._id, url: result.url }]);
                     }
                 } else if (file.type.startsWith('audio/')) {
                     const res = await uploadFile('track', file, 'track', stateAuth.token);
                     if (res) {
                         uploadResult(res._id, res.url);
-                       setFiles([...files, { id: res._id, url: res.url }]);
+                        setFiles(prev => [...prev, { name: file.name, id: res._id, url: res.url }]);
                     }
                 } else {
                     console.log(`Непідтримуваний тип файлу: ${file.type}`);
                 }
             } catch (error) {
-                console.error(error);
-                setError('При загрузке файла произошла ошибка');
+                console.error('Помилка в upload:', error);
+                setError('При завантаженні файлу сталася помилка');
             }
         }
     };

@@ -9,13 +9,13 @@ import PageTracks from './componets/pages/PageTracks';
 import PagePlayList from './componets/pages/PagePlayList';
 import PageProfileEditing from './componets/pages/PageProfileEditing';
 import PageSinglePlaylist from './componets/pages/PageSinglePlaylist';
-// import MusicPlayerSlider from './componets/MusicPlayerSlider';
 import PageSearchTracks from './componets/pages/PageSearchTracks';
 import PageCreatingAndEditingPlaylist from './componets/pages/PageCreatingAndEditingPlaylist';
 import PageMyPlaylist from './componets/pages/PageMyPlaylist';
 import PageMyTracks from './componets/pages/PageMyTracks';
 import FooterPlayer from "./componets/FooterPlayer";
 import {useSelector} from 'react-redux';
+import { DrawerProvider } from './componets/DrawerContext';
 
 function App() {
 
@@ -38,8 +38,9 @@ function App() {
 
   return (
     <Router>
-      <Header props={isLoggedIn}></Header>
-      <Routes>
+      <DrawerProvider>
+        <Header props={isLoggedIn}></Header>
+        <Routes>
         {isLoggedIn ?
           <>
             <Route element={<Aside />} >
@@ -47,8 +48,8 @@ function App() {
               <Route path="playlists" element={<PagePlayList />} />
               <Route path="profileEditing" element={<PageProfileEditing />} />
               <Route path="playlist/:id" element={<PageSinglePlaylist/>} />
+              <Route path="playlist/:id/edit" element={<PageCreatingAndEditingPlaylist />} />
               <Route path="tracks" element={<PageTracks />} />
-              {/* <Route path="player" element={<MusicPlayerSlider />} /> */}
               <Route path="creatingPlaylist" element={<PageCreatingAndEditingPlaylist />} />
               <Route path="editPlaylist/:id" element={<PageCreatingAndEditingPlaylist />} />
               <Route path="search" element={<PageSearchTracks />} />
@@ -63,8 +64,8 @@ function App() {
               <Route path="playlists" element={<PagePlayList />} />
               <Route path="profileEditing" element={<PageProfileEditing />} />
               <Route path="playlist/:id" element={<PageSinglePlaylist />} />
+              <Route path="playlist/:id/edit" element={<PageCreatingAndEditingPlaylist />} />
               <Route path="tracks" element={<PageTracks />} />
-              {/* <Route path="player" element={<MusicPlayerSlider />} /> */}
               <Route path="myTracks" element={<PageMyTracks />} />
               <Route path="creatingPlaylist" element={<PageCreatingAndEditingPlaylist />} />
               <Route path="editPlaylist/:id" element={<PageCreatingAndEditingPlaylist />} />
@@ -73,8 +74,9 @@ function App() {
             </Route>
           </>
         }
-      </Routes>
-      {isLoggedIn && <FooterPlayer />}
+        </Routes>
+        {isLoggedIn && <FooterPlayer />}
+      </DrawerProvider>
     </Router>
   );
 }

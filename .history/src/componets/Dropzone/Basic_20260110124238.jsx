@@ -1,0 +1,102 @@
+import React, { useEffect, useState } from 'react';
+import {useDropzone} from 'react-dropzone';
+import './dropzone.css';
+import {uploadFile} from "../uploadFile";
+import { useSelector, useDispatch } from "react-redux";
+import { useGetUserByIdQuery} from '../../redux/api';
+import { setAboutMe } from "../../redux/slice/authSlice";
+import store from '../../redux/store';
+
+const Basic = ({ uploadResult, prop }) => {
+
+    const stateAuth = useSelector((state) => state.persistedReducer.auth);
+    const authPayload = stateAuth?.payload;
+    const id = authPayload?._id || authPayload?.sub?.id;
+    const dispatch = useDispatch();
+    const { data, isLoading } = useGetUserByIdQuery({ _id: id }, { skip: !id });
+    const [files, setFiles] = useState([]);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        if (!isLoading && data && data.UserFindOne) {
+            const currentState = store.getState();
+            const currentAboutMe = currentState.persistedReducer.auth.aboutMe;
+            const currentAvatar = currentAboutMe?.avatar?.url;
+            const newAvatar = data.UserFindOne?.avatar?.url;
+            const hasCurrentAvatar = currentAvatar && 
+                                    currentAvatar !== '/avatars/default.png' && 
+                                    currentAvatar.startsWith('data:');
+            
+            if (hasCurrentAvatar && (!newAvatar || newAvatar === '/avatars/default.png' || !data.UserFindOne.avatar)) {
+                const updatedUser = {
+                    ...data.UserFindOne,
+                    avatar: currentAboutMe.avatar
+                };
+                dispatch(setAboutMe(updatedUser));
+            } else {
+                dispatch(setAboutMe(data.UserFindOne));
+            }
+        }
+        if(prop) {
+            setFiles([]);
+        }
+    }, [data, isLoading, dispatch, prop]);
+    
+    const handleDrop = async (acceptedFiles) => {
+        for (const file of acceptedFiles) {
+            try {
+                if (file.type.startsWith('image/')) {
+                    const result = await uploadFile('photo', file, 'upload', stateAuth.token);
+                    if (result) {
+                        uploadResult(result._id, result.url);
+                        setFiles(prev => [...prev, { name: file.name, id: result._id, url: result.url }]);
+                    }
+                } else if (file.type.startsWith('audio/')) {
+                    const res = await uploadFile('track', file, 'track', stateAuth.token);
+                    if (res) {
+                        uploadResult(res._id, res.url);
+                        setFiles(prev => [...prev, { name: file.name, id: res._id, url: res.url }]);
+                    }
+                } else {
+                    console.log(`Непідтримуваний тип файлу: ${file.type}`);
+                }
+            } catch (error) {
+                console.error('Помилка в upload:', error);
+                setError('При завантаженні файлу сталася помилка');
+            }
+        }
+    };
+
+    const { getRootProps, getInputProps } = useDropzone({
+        onDrop: handleDrop,
+        accept: {
+            'image/jpeg': ['.jpeg', '.jpg'],
+            'image/png': ['.png'],
+            'image/svg+xml': ['.svg'],
+            'audio/mpeg': ['.mp3'],
+            'audio/wav': ['.wav'],
+            'audio/webm': ['.webm'],
+            'audio/flac': ['.flac'],
+            'audio/x-m4a': ['.m4a'],
+        },
+    });
+
+    return (
+        <section className="container">
+            <div {...getRootProps({className: 'dropzone'})}>
+                <input {...getInputProps()} />
+                <p>Перетягніть файли сюди або натисніть, щоб завантажити</p>
+            </div>
+            <aside>
+                <h4>Загружені файли</h4>
+                {files.map((file, index) => (
+                    <li key={index}>
+                        {file.name}{file.url}
+                    </li>
+                ))}
+            </aside>
+        </section>
+    )
+}
+
+export default Basic;

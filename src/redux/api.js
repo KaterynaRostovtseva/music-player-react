@@ -88,7 +88,8 @@ export const api = createApi({
                 }
                 `,
         variables: { idUser, idImg }
-      })
+      }),
+      invalidatesTags: (result, error, { idUser }) => ([{ type: 'User', id: idUser }])
     }),
     getTracks: builder.query({
       query: () => ({
