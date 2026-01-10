@@ -223,7 +223,7 @@ export default function PageRegister(prop) {
                             }
 
                         </Grid>
-                        <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, ml: { xs: 0, md: 2 } }} size={isMobile ? 'small' : 'medium'}>
+                        <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, ml: { xs: 2, md: 2 } }} size={isMobile ? 'small' : 'medium'}>
                             {selectLog ? 'Авторизуватися' : 'Зареєструватися'}
                         </Button>
                         <Grid item sx={{ mt: 2, textAlign: 'center', width: '100%' }}>
@@ -231,8 +231,8 @@ export default function PageRegister(prop) {
                                 Вже є обліковий запис?
                             </Typography>
                             {!selectLog ? 
-                                <Button onClick={() => selectOnLog(true)} variant="body2" sx={{ ml: 2, color: '#304ffe', fontSize: { xs: '0.875rem', md: '1rem' } }}>Увійти</Button>
-                                : <Button onClick={() => selectOnLog(false)} variant="body2" sx={{ ml: 2, color: '#304ffe', fontSize: { xs: '0.875rem', md: '1rem' } }}> Зареструватися</Button>
+                                <Button onClick={() => selectOnLog(true)} variant="body2" sx={{ ml: 1, color: '#304ffe', fontSize: { xs: '0.875rem', md: '1rem' } }}>Увійти</Button>
+                                : <Button onClick={() => selectOnLog(false)} variant="body2" sx={{ ml: 1, color: '#304ffe', fontSize: { xs: '0.875rem', md: '1rem' } }}> Зареструватися</Button>
                             }
                         </Grid>
                     </Grid>
