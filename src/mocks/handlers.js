@@ -37,7 +37,7 @@ const handleGraphQL = (request, handlers) => {
 
 export const handlers = [
   // ===== GraphQL Endpoint =====
-  http.post('/graphql', async (info) => {
+  http.post('*/graphql', async (info) => {
     const { request } = info;
     
     try {
@@ -438,7 +438,7 @@ export const handlers = [
 
   // ===== REST UPLOAD MOCKS =====
 
-  http.post('/upload', async ({ request }) => {
+  http.post('*/upload', async ({ request }) => {
     try {
       const formData = await request.formData();
       // find first File value in formData regardless of field name
@@ -498,7 +498,7 @@ export const handlers = [
     }
   }),
 
-  http.post('/track', async ({ request }) => {
+  http.post('*/track', async ({ request }) => {
     try {
       const formData = await request.formData();
       // accept any field name containing the file
@@ -534,7 +534,7 @@ export const handlers = [
     }
   }),
   // DELETE track by id
-  http.delete('/track', async ({ request }) => {
+  http.delete('*/track', async ({ request }) => {
     try {
       const body = await request.json();
       const id = body?._id;
