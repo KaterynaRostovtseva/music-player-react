@@ -231,8 +231,8 @@ export default function PageRegister(prop) {
                                 Вже є обліковий запис?
                             </Typography>
                             {!selectLog ? 
-                                <Button onClick={() => selectOnLog(true)} variant="body2" sx={{ ml: 1, color: '#304ffe', fontSize: { xs: '0.875rem', md: '1rem' } }}>Увійти</Button>
-                                : <Button onClick={() => selectOnLog(false)} variant="body2" sx={{ ml: 1, color: '#304ffe', fontSize: { xs: '0.875rem', md: '1rem' } }}> Зареструватися</Button>
+                                <Button onClick={() => selectOnLog(true)} variant="body2" sx={{ ml: 2, color: '#304ffe', fontSize: { xs: '0.875rem', md: '1rem' } }}>Увійти</Button>
+                                : <Button onClick={() => selectOnLog(false)} variant="body2" sx={{ ml: 2, color: '#304ffe', fontSize: { xs: '0.875rem', md: '1rem' } }}> Зареструватися</Button>
                             }
                         </Grid>
                     </Grid>
