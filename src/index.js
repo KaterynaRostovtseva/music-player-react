@@ -7,13 +7,14 @@ import store from './redux/store';
 import { Provider } from 'react-redux';
 
 async function enableMocking() {
-  if (process.env.NODE_ENV === 'development') {
-    const { worker } = await import('./mocks/browser');
-    await worker.start({
-      onUnhandledRequest: 'bypass',
-      quiet: true, 
-    });
-  }
+  const { worker } = await import('./mocks/browser');
+  await worker.start({
+    onUnhandledRequest: 'bypass',
+    quiet: true,
+    serviceWorker: {
+      url: '/mockServiceWorker.js', 
+    }
+  });
 }
 
 const clearPersistedStateIfNeeded = () => {
