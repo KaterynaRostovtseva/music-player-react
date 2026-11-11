@@ -1,6 +1,6 @@
 # 🎧 Audio Player Web Application
 
-📂 GitHub: https://github.com/KaterynaRostovtseva/Project-audio-player
+📂 GitHub: https://github.com/KaterynaRostovtseva/music-player-react
 
 Interactive web application for listening to music with playlist management and audio visualization.
 
@@ -40,9 +40,9 @@ Interactive web application for listening to music with playlist management and 
 
 ### 1. Clone the repository
 
-git clone https://github.com/KaterynaRostovtseva/Project-audio-player.git
+git clone https://github.com/KaterynaRostovtseva/music-player-react.git
 
-cd Project-audio-player
+cd music-player-react
 
 ### 2. Install dependencies
 npm install
