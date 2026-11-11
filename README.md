@@ -1,6 +1,7 @@
 # 🎧 Audio Player Web Application
 
 📂 GitHub: https://github.com/KaterynaRostovtseva/music-player-react
+🌐 Live: https://music-player-reac.vercel.app/
 
 Interactive web application for listening to music with playlist management and audio visualization.
 
